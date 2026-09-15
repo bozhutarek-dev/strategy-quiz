@@ -7,12 +7,16 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { questions, QUIZ_TITLE, QUIZ_SUBTITLE } from '@/data/questions'
 import { GITHUB_TOKEN, RESULTS_REPO } from '@/config'
+import Admin from '@/Admin'
 
 type Stage = 'start' | 'quiz' | 'result'
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 export default function App() {
+  if (window.location.hash.startsWith('#admin')) {
+    return <Admin />
+  }
   const [stage, setStage] = useState<Stage>('start')
   const [name, setName] = useState('')
   const [answers, setAnswers] = useState<Record<number, number>>({})
