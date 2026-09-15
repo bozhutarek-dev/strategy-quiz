@@ -216,7 +216,7 @@ export const questions: Question[] = [
     module: '模块七：差异化',
     knowledgePoint: '差异化',
     mode: '识记（反向）',
-    stem: '根据文章（图二），以下哪项不属于"差异化"（如何在市场竞争中获胜）的可选方向？',
+    stem: '根据文章，以下哪项不属于"差异化"（如何在市场竞争中获胜）的可选方向？',
     options: ['形象', '根据客户需要定制生产', '产品的可靠性', '地理范围'],
     correctIndex: 3,
     explanation:
@@ -281,7 +281,7 @@ export const questions: Question[] = [
     module: '模块九：盈利模式',
     knowledgePoint: '盈利模式',
     mode: '识记（反向）',
-    stem: '根据文章（图二），以下哪项不属于文章提出的"如何获得回报"（盈利模式）的基本逻辑？',
+    stem: '根据文章，以下哪项不属于文章提出的"如何获得回报"（盈利模式）的基本逻辑？',
     options: [
       '通过规模优势降低成本',
       '通过范围和重复优势降低成本',
