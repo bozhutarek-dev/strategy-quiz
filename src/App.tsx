@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { questions, QUIZ_TITLE, QUIZ_SUBTITLE } from '@/data/questions'
+import { GITHUB_TOKEN, RESULTS_REPO } from '@/config'
 
 type Stage = 'start' | 'quiz' | 'result'
 
@@ -12,8 +14,10 @@ const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 export default function App() {
   const [stage, setStage] = useState<Stage>('start')
+  const [name, setName] = useState('')
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [error, setError] = useState('')
+  const [uploadStatus, setUploadStatus] = useState('')
 
   const answeredCount = Object.keys(answers).length
   const total = questions.length
@@ -24,8 +28,54 @@ export default function App() {
   )
 
   const startQuiz = () => {
+    if (!name.trim()) {
+      setError('请先填写您的姓名')
+      return
+    }
+    setError('')
     setStage('quiz')
     window.scrollTo(0, 0)
+  }
+
+  const uploadResult = async () => {
+    if (!GITHUB_TOKEN) {
+      setUploadStatus('成绩汇总未配置（缺少令牌），本次成绩仅在本机显示')
+      return
+    }
+    setUploadStatus('正在提交成绩…')
+    const record = {
+      name: name.trim(),
+      score,
+      total,
+      percent: Math.round((score / total) * 100),
+      submittedAt: new Date().toISOString(),
+      answers: questions.map((q) => ({
+        id: q.id,
+        choice: answers[q.id],
+        correct: answers[q.id] === q.correctIndex,
+      })),
+    }
+    const safeName = name.trim().replace(/[\\/:*?"<>|\s]+/g, '_')
+    const path = `results/${Date.now()}-${safeName}.json`
+    const apiPath = path.split('/').map(encodeURIComponent).join('/')
+    try {
+      const res = await fetch(`https://api.github.com/repos/${RESULTS_REPO}/contents/${apiPath}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `成绩提交：${name.trim()}`,
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(record, null, 2)))),
+          branch: 'main',
+        }),
+      })
+      setUploadStatus(res.ok ? '成绩已提交 ✓' : `成绩提交失败（HTTP ${res.status}），请截图保存本页`)
+    } catch {
+      setUploadStatus('成绩提交失败（网络错误），请截图保存本页')
+    }
   }
 
   const submit = () => {
@@ -40,6 +90,7 @@ export default function App() {
     setError('')
     setStage('result')
     window.scrollTo(0, 0)
+    uploadResult()
   }
 
   const restart = () => {
@@ -57,6 +108,17 @@ export default function App() {
             <p className="text-sm text-muted-foreground">{QUIZ_SUBTITLE}</p>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">您的姓名</Label>
+              <Input
+                id="name"
+                placeholder="请输入姓名"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && startQuiz()}
+              />
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <Button className="w-full" size="lg" onClick={startQuiz}>
               开始作答
             </Button>
@@ -76,7 +138,7 @@ export default function App() {
         <div className="max-w-2xl mx-auto p-4 space-y-6">
           <Card className="shadow-lg mt-4">
             <CardHeader className="text-center">
-              <p className="text-sm text-muted-foreground">您的测试成绩</p>
+              <p className="text-sm text-muted-foreground">{name} 的测试成绩</p>
               <CardTitle className="text-5xl font-bold my-2">
                 {score}
                 <span className="text-2xl text-muted-foreground"> / {total}</span>
@@ -84,6 +146,11 @@ export default function App() {
               <p className={`text-lg font-medium ${percent >= 60 ? 'text-green-600' : 'text-red-600'}`}>
                 正确率 {percent}%
               </p>
+              {uploadStatus && (
+                <p className={`text-sm mt-2 ${uploadStatus.includes('✓') ? 'text-green-600' : 'text-amber-600'}`}>
+                  {uploadStatus}
+                </p>
+              )}
             </CardHeader>
           </Card>
 
