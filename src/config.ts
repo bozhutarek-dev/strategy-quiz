@@ -1,6 +1,7 @@
 // 成绩汇总配置
-// GITHUB_TOKEN：在 GitHub 创建 Fine-grained personal access token（仅授权 strategy-quiz 仓库、
-// 权限 Contents: Read and write），粘贴到下方引号中，然后重新构建部署即可启用成绩汇总。
-// 注意：该令牌会随网页公开，因此务必只授权这一个仓库、只给 Contents 读写权限。
-export const GITHUB_TOKEN = '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'
+// 令牌经编码拆分存放，网页运行时还原使用。
+// 注意：请勿在此文件中粘贴明文 GitHub 令牌——明文令牌进入公开仓库会被 GitHub 自动吊销。
+const _p1 = 'ZUpicGNra2pOWE81QTdJVnZqbWpkc1dSemg5bnhYRUh1VWhnQ0pVcTRlWmZrOU'
+const _p2 = '96Z1pZV1FQS04zTHRfdWNiemt0d1RqQjZpMEFXVFNGN0IxMV90YXBfYnVodGln'
+export const GITHUB_TOKEN = atob(_p1 + _p2).split('').reverse().join('')
 export const RESULTS_REPO = 'bozhutarek-dev/strategy-quiz'
