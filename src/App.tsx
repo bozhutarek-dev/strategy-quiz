@@ -158,52 +158,6 @@ export default function App() {
             </CardHeader>
           </Card>
 
-          <h2 className="text-lg font-semibold">逐题解析</h2>
-
-          {questions.map((q) => {
-            const user = answers[q.id]
-            const correct = user === q.correctIndex
-            return (
-              <Card key={q.id} id={`r-${q.id}`} className={correct ? 'border-green-200' : 'border-red-300'}>
-                <CardHeader className="pb-2">
-                  <p className={`text-sm font-medium ${correct ? 'text-green-700' : 'text-red-600'}`}>
-                    {correct ? '✓ 回答正确' : '✗ 回答错误'}
-                  </p>
-                  <CardTitle className="text-base leading-relaxed font-medium">
-                    {q.id}． {q.stem}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {q.options.map((opt, i) => {
-                    const isCorrect = i === q.correctIndex
-                    const isUser = i === user
-                    return (
-                      <div
-                        key={i}
-                        className={`rounded-md border p-3 text-sm leading-relaxed ${
-                          isCorrect
-                            ? 'border-green-500 bg-green-50'
-                            : isUser
-                              ? 'border-red-400 bg-red-50'
-                              : 'border-slate-200'
-                        }`}
-                      >
-                        <span className="font-medium mr-1">{OPTION_LETTERS[i]}.</span>
-                        {opt}
-                        {isCorrect && <span className="ml-2 text-green-700 font-medium">✓ 正确答案</span>}
-                        {isUser && !isCorrect && <span className="ml-2 text-red-600 font-medium">✗ 您的选择</span>}
-                      </div>
-                    )
-                  })}
-                  <div className="rounded-md bg-amber-50 border border-amber-200 p-3 text-sm leading-relaxed">
-                    <span className="font-medium">解析（原文引用）：</span>
-                    {q.explanation}
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-
           <Button className="w-full" size="lg" variant="outline" onClick={restart}>
             重新作答
           </Button>
