@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { GITHUB_TOKEN, RESULTS_REPO } from '@/config'
@@ -12,6 +13,7 @@ interface AnswerRecord {
 
 interface ResultRecord {
   name: string
+  group?: number
   score: number
   total: number
   percent: number
@@ -35,9 +37,11 @@ export default function Admin() {
   const [records, setRecords] = useState<ResultRecord[]>([])
   const [status, setStatus] = useState('正在加载…')
   const [lastRefresh, setLastRefresh] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
   const cache = useRef(new Map<string, { sha: string; record: ResultRecord }>())
 
   const load = useCallback(async () => {
+    setRefreshing(true)
     try {
       const res = await fetch(`${API}/contents/results`, { headers: HEADERS })
       if (res.status === 404) {
@@ -75,13 +79,13 @@ export default function Admin() {
       setLastRefresh(new Date().toLocaleTimeString())
     } catch (e) {
       setStatus(`刷新失败：${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setRefreshing(false)
     }
   }, [])
 
   useEffect(() => {
     load()
-    const timer = setInterval(load, 15000)
-    return () => clearInterval(timer)
   }, [load])
 
   const count = records.length
@@ -100,15 +104,39 @@ export default function Admin() {
     }
   })
 
+  // 分组统计：组数根据实际填写的组号动态生成
+  const groupMap = new Map<string, ResultRecord[]>()
+  for (const r of records) {
+    const key = r.group !== undefined && r.group !== null ? `第 ${r.group} 组` : '未分组'
+    if (!groupMap.has(key)) groupMap.set(key, [])
+    groupMap.get(key)!.push(r)
+  }
+  const groupStats = Array.from(groupMap.entries())
+    .map(([group, rs]) => ({
+      group,
+      submitted: rs.length,
+      above80: rs.filter((r) => r.percent > 80).length,
+    }))
+    .sort((a, b) => {
+      const na = parseInt(a.group.replace(/\D/g, ''), 10)
+      const nb = parseInt(b.group.replace(/\D/g, ''), 10)
+      if (isNaN(na)) return 1
+      if (isNaN(nb)) return -1
+      return na - nb
+    })
+
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         <div className="flex items-end justify-between mt-4 flex-wrap gap-2">
           <div>
             <h1 className="text-2xl font-bold">成绩实时看板</h1>
-            <p className="text-sm text-muted-foreground">《你肯定你有战略吗？》课前测试 · 每 15 秒自动刷新</p>
+            <p className="text-sm text-muted-foreground">《你肯定你有战略吗？》课前测试 · 手动刷新</p>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-1">
+            <Button onClick={load} disabled={refreshing} size="sm">
+              {refreshing ? '刷新中…' : '刷新'}
+            </Button>
             <p className="text-sm text-muted-foreground">上次刷新 {lastRefresh}</p>
             {status && <p className="text-sm text-amber-600">{status}</p>}
           </div>
@@ -136,6 +164,38 @@ export default function Admin() {
         </div>
 
         <Card>
+          <CardHeader><CardTitle className="text-lg">分组统计</CardTitle></CardHeader>
+          <CardContent>
+            {groupStats.length === 0 ? (
+              <p className="text-sm text-muted-foreground">暂无数据</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left">
+                      <th className="py-2 pr-4">小组</th>
+                      <th className="py-2 pr-4">已提交人数</th>
+                      <th className="py-2 pr-4">正确率高于 80% 人数</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupStats.map((g) => (
+                      <tr key={g.group} className="border-b last:border-0">
+                        <td className="py-2 pr-4 font-medium">{g.group}</td>
+                        <td className="py-2 pr-4">{g.submitted}</td>
+                        <td className="py-2 pr-4">
+                          <span className={g.above80 > 0 ? 'text-green-600 font-medium' : ''}>{g.above80}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
           <CardHeader><CardTitle className="text-lg">学员成绩（按提交时间倒序）</CardTitle></CardHeader>
           <CardContent>
             {count === 0 ? (
@@ -145,6 +205,7 @@ export default function Admin() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left">
+                      <th className="py-2 pr-4">小组</th>
                       <th className="py-2 pr-4">姓名</th>
                       <th className="py-2 pr-4">得分</th>
                       <th className="py-2 pr-4">正确率</th>
@@ -154,6 +215,9 @@ export default function Admin() {
                   <tbody>
                     {records.map((r, i) => (
                       <tr key={i} className="border-b last:border-0">
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {r.group !== undefined && r.group !== null ? `第 ${r.group} 组` : '—'}
+                        </td>
                         <td className="py-2 pr-4 font-medium">{r.name}</td>
                         <td className="py-2 pr-4">{r.score} / {r.total}</td>
                         <td className={`py-2 pr-4 ${r.percent >= 60 ? 'text-green-600' : 'text-red-600'}`}>

@@ -19,6 +19,7 @@ export default function App() {
   }
   const [stage, setStage] = useState<Stage>('start')
   const [name, setName] = useState('')
+  const [group, setGroup] = useState('')
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [error, setError] = useState('')
   const [uploadStatus, setUploadStatus] = useState('')
@@ -36,6 +37,10 @@ export default function App() {
       setError('请先填写您的姓名')
       return
     }
+    if (!/^\d+$/.test(group.trim())) {
+      setError('请填写小组编号（数字）')
+      return
+    }
     setError('')
     setStage('quiz')
     window.scrollTo(0, 0)
@@ -49,6 +54,7 @@ export default function App() {
     setUploadStatus('正在提交成绩…')
     const record = {
       name: name.trim(),
+      group: Number(group.trim()),
       score,
       total,
       percent: Math.round((score / total) * 100),
@@ -113,6 +119,17 @@ export default function App() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="group">小组编号</Label>
+              <Input
+                id="group"
+                inputMode="numeric"
+                placeholder="请输入小组编号（数字）"
+                value={group}
+                onChange={(e) => setGroup(e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => e.key === 'Enter' && startQuiz()}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="name">您的姓名</Label>
               <Input
                 id="name"
@@ -142,7 +159,7 @@ export default function App() {
         <div className="max-w-2xl mx-auto p-4 space-y-6">
           <Card className="shadow-lg mt-4">
             <CardHeader className="text-center">
-              <p className="text-sm text-muted-foreground">{name} 的测试成绩</p>
+              <p className="text-sm text-muted-foreground">第 {group} 组 · {name} 的测试成绩</p>
               <CardTitle className="text-5xl font-bold my-2">
                 {score}
                 <span className="text-2xl text-muted-foreground"> / {total}</span>

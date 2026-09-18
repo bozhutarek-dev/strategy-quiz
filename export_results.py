@@ -49,7 +49,7 @@ def main():
     ws = wb.active
     ws.title = '成绩汇总'
 
-    header = ['姓名', '得分', '总分', '正确率(%)', '提交时间'] + [f'Q{i}' for i in range(1, 16)]
+    header = ['小组', '姓名', '得分', '总分', '正确率(%)', '提交时间'] + [f'Q{i}' for i in range(1, 16)]
     ws.append(header)
     for cell in ws[1]:
         cell.font = Font(bold=True)
@@ -63,18 +63,18 @@ def main():
         except Exception:
             pass
         marks = {a['id']: ('✓' if a['correct'] else '✗') for a in rec.get('answers', [])}
-        row = [rec.get('name', ''), rec.get('score', ''), rec.get('total', ''),
+        row = [rec.get('group', ''), rec.get('name', ''), rec.get('score', ''), rec.get('total', ''),
                rec.get('percent', ''), ts] + [marks.get(i, '') for i in range(1, 16)]
         ws.append(row)
 
-    for col, width in zip('ABCDE', [14, 8, 8, 11, 20]):
+    for col, width in zip('ABCDEF', [8, 14, 8, 8, 11, 20]):
         ws.column_dimensions[col].width = width
-    for i in range(6, 21):
+    for i in range(7, 22):
         ws.column_dimensions[chr(64 + i)].width = 5
 
     # 标红答错的题
     red = Font(color='CC0000')
-    for row in ws.iter_rows(min_row=2, min_col=6, max_col=20):
+    for row in ws.iter_rows(min_row=2, min_col=7, max_col=21):
         for cell in row:
             if cell.value == '✗':
                 cell.font = red
