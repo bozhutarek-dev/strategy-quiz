@@ -92,7 +92,7 @@ export default function Admin() {
   const avg = count ? Math.round(records.reduce((s, r) => s + r.percent, 0) / count) : 0
   const max = count ? Math.max(...records.map((r) => r.score)) : 0
   const min = count ? Math.min(...records.map((r) => r.score)) : 0
-  const passCount = records.filter((r) => r.percent >= 60).length
+  const passCount = records.filter((r) => r.percent >= 80).length
 
   const questionStats = questions.map((q) => {
     const answered = records.map((r) => r.answers.find((a) => a.id === q.id)).filter(Boolean)
@@ -156,7 +156,7 @@ export default function Admin() {
             <CardContent><p className="text-3xl font-bold">{max} / {min}</p></CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><p className="text-sm text-muted-foreground">及格率（≥60%）</p></CardHeader>
+            <CardHeader className="pb-2"><p className="text-sm text-muted-foreground">正确率≥80%占比</p></CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{count ? Math.round((passCount / count) * 100) : 0}%</p>
             </CardContent>
