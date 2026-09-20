@@ -10,7 +10,7 @@ export interface Question {
 }
 
 export const QUIZ_TITLE = '课前阅读材料 1：《你肯定你有战略吗？》测试'
-export const QUIZ_SUBTITLE = '共 15 题 · 单选题 · 提交后自动批改并显示正确答案与解析'
+export const QUIZ_SUBTITLE = '共 15 题 · 单选题'
 
 export const questions: Question[] = [
   {
