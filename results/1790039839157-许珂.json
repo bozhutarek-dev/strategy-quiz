@@ -1,0 +1,85 @@
+{
+  "name": "许珂",
+  "group": 3,
+  "score": 12,
+  "total": 15,
+  "percent": 80,
+  "submittedAt": "2026-09-22T01:17:19.156Z",
+  "answers": [
+    {
+      "id": 1,
+      "choice": 1,
+      "correct": true
+    },
+    {
+      "id": 2,
+      "choice": 1,
+      "correct": false
+    },
+    {
+      "id": 3,
+      "choice": 1,
+      "correct": true
+    },
+    {
+      "id": 4,
+      "choice": 1,
+      "correct": true
+    },
+    {
+      "id": 5,
+      "choice": 1,
+      "correct": true
+    },
+    {
+      "id": 6,
+      "choice": 2,
+      "correct": true
+    },
+    {
+      "id": 7,
+      "choice": 0,
+      "correct": true
+    },
+    {
+      "id": 8,
+      "choice": 0,
+      "correct": true
+    },
+    {
+      "id": 9,
+      "choice": 1,
+      "correct": true
+    },
+    {
+      "id": 10,
+      "choice": 0,
+      "correct": true
+    },
+    {
+      "id": 11,
+      "choice": 1,
+      "correct": false
+    },
+    {
+      "id": 12,
+      "choice": 2,
+      "correct": true
+    },
+    {
+      "id": 13,
+      "choice": 1,
+      "correct": true
+    },
+    {
+      "id": 14,
+      "choice": 2,
+      "correct": true
+    },
+    {
+      "id": 15,
+      "choice": 0,
+      "correct": false
+    }
+  ]
+}
